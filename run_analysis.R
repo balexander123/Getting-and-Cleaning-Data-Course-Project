@@ -1,15 +1,11 @@
 setwd("/Users/ba25714/Getting-and-Cleaning-Data-Course-Project")
 
-install.packages("plyr")
+install.packages("dplyr")
 require("plyr",character.only=TRUE) 
 
 MakeTidy1 <- function(dataRootDir = "UCI HAR Dataset") {
   
   # utility function
-  FilePath <- function(file) {
-    paste(dataRootDir,"/",file,sep="")
-  }
-  
   MakePath <- function(file) {
     paste(dataRootDir,"/",file,sep="")
   }
@@ -26,7 +22,7 @@ MakeTidy1 <- function(dataRootDir = "UCI HAR Dataset") {
   #merge training and test sets
   testSet <- read.table(kX_test_txt)
   trainingSet <- read.table(kX_train_txt)
-  allObservations <- rbind(testSet,trainingSet)
+  allObservations <- dplyr::bind_rows(testSet,trainingSet)
   
   allObservations
   
