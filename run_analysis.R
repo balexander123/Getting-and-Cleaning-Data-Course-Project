@@ -74,11 +74,26 @@ MakeTidy1 <- function(dataRootDir = "UCI HAR Dataset") {
   testSubjects <- read.table(kTest_subject_test_txt,stringsAsFactors=FALSE)
   trainingSubjects <- read.table(kTrain_subject_train_txt,stringsAsFactors=FALSE)
   allSubjects <- dplyr::bind_rows(testSubjects,trainingSubjects)
-  
   colnames(allSubjects) <- "subject"
+  
   allObservations <- cbind(allSubjects,allObservations)
   
   allObservations <- dplyr::arrange(allObservations,subject,activity)
   
   allObservations
+}
+
+MakeTidy2 <- function(inputData) {
+  # go long, create a long dataset from a wide one
+  molten <- dplyr::melt(inputData,id.vars= c("subject","activity"))
+  # go wide, aggregating on subject + activity and applying mean function
+  cast <- dplyr::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
+  cast
+}
+
+SaveDataSets <- function() {
+  tidy1 <- MakeTidy1()
+  tidy2 <- MakeTidy2(tidy1)
+  write.csv(tidy1,file="tidy1.csv")
+  write.csv(tidy2,file="tidy2.csv")
 }

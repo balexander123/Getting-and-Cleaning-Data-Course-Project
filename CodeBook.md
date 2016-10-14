@@ -110,13 +110,13 @@ The desired tidy data set will have one observation per row from the combined te
 ## Tidy Steps
 ### Utility functions
 ```R
- MakePath <- function(file) {
-   paste(dataRootDir,"/",file,sep="")
- }
+   MakePath <- function(file) {
+     paste(dataRootDir,"/",file,sep="")
+   }
   
- InstallRequire <- function(package) {
-   install.packages(package)
-   require(package,character.only=TRUE)
+   InstallRequire <- function(package) {
+     install.packages(package)
+     require(package,character.only=TRUE)
  }
 ```
 ### Download Data
@@ -129,7 +129,7 @@ The desired tidy data set will have one observation per row from the combined te
 
 ### Install required packages
 ```R
-InstallRequire("dplyr")
+  InstallRequire("dplyr")
 ```
 
 ### Load files
@@ -149,15 +149,92 @@ InstallRequire("dplyr")
 Use dplyr::bind\_rows to combine X\_train.txt and X\_test.txt files
 
 ```R
-# Merge training and test sets
-testSet <- read.table(kX_test_txt)
-trainingSet <- read.table(kX_train_txt)
-allObservations <- dplyr::bind_rows(testSet,trainingSet)
+  # Merge training and test sets
+  testSet <- read.table(kX_test_txt)
+  trainingSet <- read.table(kX_train_txt)
+  allObservations <- dplyr::bind_rows(testSet,trainingSet)
 ```
-### Extraction
 ### Meaningful Names
-## Tidy_1.csv
-## Reshaping Data
-### Tidy_2.csv
+```R
+  # Descriptive names for columns
+  featureNames <- read.table(kFeatures_txt,stringsAsFactors=FALSE)[[2]]
+  colnames(allObservations) <- featureNames
+```
+
+### Extraction
+```R
+  # take only mean, std, or activityLabel columns
+  allObservations <- allObservations[,grep("mean|std|activityLabel",featureNames)]
+```
+### Conform to Tidy Naming Conventions
+```R
+  obsNames = names(allObservations)
+  obsNames <- gsub(pattern="^t",replacement="time",x=obsNames)
+  obsNames <- gsub(pattern="^f",replacement="freq",x=obsNames)
+  obsNames <- gsub(pattern="-?mean[(][)]-?",replacement="Mean",x=obsNames)
+  obsNames <- gsub(pattern="-?std[()][)]-?",replacement="Std",x=obsNames)
+  obsNames <- gsub(pattern="-?meanFreq[()][)]-?",replacement="MeanFreq",x=obsNames)
+  obsNames <- gsub(pattern="BodyBody",replacement="Body",x=obsNames)
+  names(allObservations) <- obsNames
+```
+### Setting Column Names
+```R
+  activityLabels <- read.table(kActivity_labels_txt,stringsAsFactors=FALSE)
+  colnames(activityLabels) <- c("activityID","activityLabel")
+  
+  testActivities <- read.table(kTest_y_test_txt,stringsAsFactors=FALSE)
+  trainingActivities <- read.table(kTrain_y_train_txt,stringsAsFactors=FALSE)
+  allActivities <- dplyr::bind_rows(testActivities,trainingActivities)
+  # Add activityID for joining
+  colnames(allActivities)[1] <- "activityID"
+```
+### Joining
+```R
+  # Join by activityLabels
+  activities <- dplyr::inner_join(allActivities,activityLabels,by="activityID")
+  allObservations <- cbind(activity=activities[,"activityLabel"],allObservations)
+```
+### Combine Subjects
+```R
+  testSubjects <- read.table(kTest_subject_test_txt,stringsAsFactors=FALSE)
+  trainingSubjects <- read.table(kTrain_subject_train_txt,stringsAsFactors=FALSE)
+  allSubjects <- dplyr::bind_rows(testSubjects,trainingSubjects)
+  colnames(allSubjects) <- "subject"
+```
+### Combine All Observations
+```R
+  allObservations <- cbind(allSubjects,allObservations)
+```
+
+### Sort Observations
+```R
+  allObservations <- dplyr::arrange(allObservations,subject,activity)
+```
+
+### Return The Tidy Data
+```R
+  allObservations
+```
+## Make Tidy2
+### Reshaping Data with dplyr Melt and Cast
+```R
+MakeTidy2 <- function(inputData) {
+  # go long, create a long dataset from a wide one
+  molten <- dplyr::melt(inputData,id.vars= c("subject","activity"))
+  # go wide, aggregating on subject + activity and applying mean function
+  cast <- dplyr::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
+  cast
+}
+```
+## Make The CSVs
+```R
+SaveDataSets <- function() {
+  tidy1 <- MakeTidy1()
+  tidy2 <- MakeTidy2(tidy1)
+  write.csv(tidy1,file="tidy1.csv")
+  write.csv(tidy2,file="tidy2.csv")
+}
+```
+
 ## End Notes
 <sup>[1](#myfootnote1) David Hood, Community TA <a>https://class.coursera.org/getdata-008/forum/thread?thread_id=24</a></sup>
