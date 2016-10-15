@@ -94,6 +94,6 @@ MakeTidy2 <- function(inputData) {
 SaveDataSets <- function() {
   tidy1 <- MakeTidy1()
   tidy2 <- MakeTidy2(tidy1)
-  write.csv(tidy1,file="tidy1.csv")
-  write.csv(tidy2,file="tidy2.csv")
+  write.table(tidy1, file="tidy1.csv", row.name=FALSE)
+  write.table(tidy2, file="tidy2.csv", row.name=FALSE)
 }
