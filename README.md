@@ -1,6 +1,7 @@
 # Getting and Cleaning Data
 ## Course Project
 ### Introduction
+Project details can be found here: <a>https://www.coursera.org/learn/data-cleaning/peer/FIZtT/getting-and-cleaning-data-course-project</a>
 
 ### Description
 Everything to download, transform and export tidy data sets is contained in <pre>run_analysis.R</pre>
