@@ -1,5 +1,4 @@
 # Code Book
-## Variables
 ## Data Sources
 ### Download Location
 ### Data Files And Relationships
