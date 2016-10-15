@@ -85,9 +85,9 @@ MakeTidy1 <- function(dataRootDir = "UCI HAR Dataset") {
 
 MakeTidy2 <- function(inputData) {
   # go long, create a long dataset from a wide one
-  molten <- dplyr::melt(inputData,id.vars= c("subject","activity"))
+  molten <- reshape2::melt(inputData,id.vars= c("subject","activity"))
   # go wide, aggregating on subject + activity and applying mean function
-  cast <- dplyr::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
+  cast <- reshape2::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
   cast
 }
 

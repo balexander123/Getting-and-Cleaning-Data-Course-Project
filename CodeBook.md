@@ -216,13 +216,13 @@ Use dplyr::bind\_rows to combine X\_train.txt and X\_test.txt files
   allObservations
 ```
 ## Make Tidy2
-### Reshaping Data with dplyr Melt and Cast
+### Reshaping Data with reshape2 Melt and Cast
 ```R
 MakeTidy2 <- function(inputData) {
   # go long, create a long dataset from a wide one
-  molten <- dplyr::melt(inputData,id.vars= c("subject","activity"))
+  molten <- reshape2::melt(inputData,id.vars= c("subject","activity"))
   # go wide, aggregating on subject + activity and applying mean function
-  cast <- dplyr::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
+  cast <- reshape2::dcast(molten, subject+activity ~ variable, fun.aggregate=mean)
   cast
 }
 ```
